@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>C 方案：LitePT 实例分割路线</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --panel:#131b31; --line:#2b3b62; --blue:#65a3ff; --green:#68d391; --amber:#f6c85f; --muted:#a9b7d0; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:radial-gradient(circle at 20% 0%,#16264b 0,#0b1020 42%); color:#f4f7ff; font-family:"Microsoft YaHei",system-ui,sans-serif; }
+    main { max-width:1180px; margin:auto; padding:34px 24px 48px; }
+    h1 { margin:0 0 8px; font-size:32px; }
+    .lead { color:var(--muted); margin:0 0 26px; line-height:1.7; }
+    .flow { display:grid; grid-template-columns:1fr 48px 1fr 48px 1fr; align-items:stretch; gap:10px; }
+    .card { background:rgba(19,27,49,.94); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 14px 36px rgba(0,0,0,.25); }
+    .card h2 { margin:0 0 10px; font-size:18px; color:var(--blue); }
+    .arrow { display:flex; align-items:center; justify-content:center; color:var(--blue); font-size:30px; }
+    ul { margin:8px 0 0; padding-left:21px; color:#dbe5f7; line-height:1.75; }
+    .badge { display:inline-block; padding:4px 9px; border-radius:999px; background:#223458; color:#bdd5ff; font-size:12px; margin-bottom:12px; }
+    .grid { display:grid; grid-template-columns:1.15fr .85fr; gap:16px; margin-top:18px; }
+    .warn { border-color:#6c5730; }
+    .warn h2 { color:var(--amber); }
+    .ok { border-color:#2c6848; }
+    .ok h2 { color:var(--green); }
+    code { color:#c9dcff; background:#0a1225; padding:2px 5px; border-radius:5px; }
+    .actions { display:flex; gap:12px; margin-top:22px; }
+    button { flex:1; border:1px solid var(--line); border-radius:12px; padding:15px 18px; font-size:16px; font-weight:700; cursor:pointer; }
+    button[value="approve"] { background:#2d6cdf; color:white; border-color:#4d88ed; }
+    button[value="revise"] { background:#17233d; color:#dbe8ff; }
+    .foot { color:#8798b7; font-size:13px; margin-top:12px; }
+    @media (max-width:850px) { .flow { grid-template-columns:1fr; } .arrow { transform:rotate(90deg); min-height:35px; } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">已选择方案 C · 深度实例分割</span>
+  <h1>先证明模型可用，再接入桌面端</h1>
+  <p class="lead">目标不是只给点云染色，而是让每个点同时具有“类别、对象编号、置信度”，随后把单个对象交给 RANSAC 做精确几何拟合和尺寸计算。</p>
+
+  <section class="flow" aria-label="处理流程">
+    <article class="card">
+      <h2>1 · 输入与预处理</h2>
+      <ul>
+        <li>读取 PLY / PCD</li>
+        <li>需要 XYZ + RGB</li>
+        <li>缺少法向量时自动估计</li>
+        <li>保留原始点索引，方便结果映射</li>
+      </ul>
+    </article>
+    <div class="arrow">→</div>
+    <article class="card">
+      <h2>2 · LitePT ScanNet200</h2>
+      <ul>
+        <li>加载实例分割权重</li>
+        <li>PointGroup 聚类对象实例</li>
+        <li>输出 semantic / instance / confidence</li>
+        <li>显存不足时分块处理</li>
+      </ul>
+    </article>
+    <div class="arrow">→</div>
+    <article class="card">
+      <h2>3 · 精确测量</h2>
+      <ul>
+        <li>GUI 按实例着色与选择</li>
+        <li>选中对象单独送入 RANSAC</li>
+        <li>拟合平面、边线、圆柱等</li>
+        <li>导出尺寸、轮廓和置信度</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card ok">
+      <h2>第一阶段验收标准</h2>
+      <ul>
+        <li>独立脚本能严格加载现有 ScanNet200 权重</li>
+        <li>真实 RGB 室内点云能完成一次 GPU 推理</li>
+        <li>生成彩色 PLY、逐点标签文件、实例 JSON 摘要</li>
+        <li>原始点与输出标签一一对应，无错位</li>
+        <li>统计显存、耗时、实例数量和置信度</li>
+      </ul>
+    </article>
+    <article class="card warn">
+      <h2>当前必须解决的限制</h2>
+      <ul>
+        <li><code>testdata1.pcd</code> 只有 XYZ，不能可靠验证该权重</li>
+        <li>还需编译 <code>pointgroup_ops</code> 与 sparsehash</li>
+        <li>ScanNet200 更偏室内通用类别，不保证识别瓷砖或精确窗框</li>
+        <li>精确尺寸最终仍由几何算法完成，不直接相信神经网络边界</li>
+      </ul>
+    </article>
+  </section>
+
+  <form class="actions">
+    <button name="choice" value="approve">批准：按这个顺序开始实现</button>
+    <button name="choice" value="revise">需要调整设计</button>
+  </form>
+  <p class="foot">批准后先完成“独立实例分割脚本”，通过验收再改 Qt/C++ GUI。</p>
+</main>
+</body>
+</html>

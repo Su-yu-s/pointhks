@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "scannet200-instances": {
+      "description": "ScanNet200 indoor instance segmentation (200 semantic classes).",
+      "task": "instance_segmentation",
+      "entrypoint": "tools/infer_scannet200_instances.py",
+      "config": "configs/scannet200/insseg-litept-small-v1m2.py",
+      "weight": "weights/scannet200-insseg-litept-small-v1m2/model_best.pth",
+      "class_count": 200,
+      "domain": "indoor RGB point clouds",
+      "input": {
+        "formats": ["ply", "pcd"],
+        "required_fields": ["x", "y", "z", "red", "green", "blue"],
+        "optional_fields": ["normal_x", "normal_y", "normal_z"],
+        "default_unit": "m",
+        "model_up_axis": "z"
+      }
+    },
+    "scannet-instances": {
+      "description": "ScanNet indoor instance segmentation (20 semantic classes).",
+      "task": "instance_segmentation",
+      "entrypoint": "tools/infer_scannet200_instances.py",
+      "config": "configs/scannet/insseg-litept-small-v1m2.py",
+      "weight": "weights/scannet-insseg-litept-small-v1m2/model_best.pth",
+      "class_count": 20,
+      "domain": "indoor RGB point clouds",
+      "input": {
+        "formats": ["ply", "pcd"],
+        "required_fields": ["x", "y", "z", "red", "green", "blue"],
+        "optional_fields": ["normal_x", "normal_y", "normal_z"],
+        "default_unit": "m",
+        "model_up_axis": "z"
+      }
+    },
+    "scannet-semantic": {
+      "description": "ScanNet indoor semantic segmentation (20 classes).",
+      "task": "semantic_segmentation",
+      "entrypoint": "tools/infer_indoor_semantic.py",
+      "config": "configs/scannet/semseg-litept-small-v1m1.py",
+      "weight": "weights/scannet-semseg-litept-small-v1m1/model_best.pth",
+      "class_count": 20,
+      "domain": "indoor RGB point clouds",
+      "input": {
+        "formats": ["ply", "pcd"],
+        "required_fields": ["x", "y", "z", "red", "green", "blue"],
+        "optional_fields": ["normal_x", "normal_y", "normal_z"],
+        "default_unit": "m",
+        "model_up_axis": "z"
+      }
+    },
+    "structured3d-semantic": {
+      "description": "Structured3D indoor semantic segmentation (25 classes).",
+      "task": "semantic_segmentation",
+      "entrypoint": "tools/infer_indoor_semantic.py",
+      "config": "configs/structured3d/semseg-litept-small-v1m1.py",
+      "weight": "weights/structured3d-semseg-litept-small-v1m1/model_best.pth",
+      "class_count": 25,
+      "domain": "synthetic indoor RGB point clouds",
+      "input": {
+        "formats": ["ply", "pcd"],
+        "required_fields": ["x", "y", "z", "red", "green", "blue"],
+        "optional_fields": ["normal_x", "normal_y", "normal_z"],
+        "default_unit": "m",
+        "model_up_axis": "z"
+      }
+    },
+    "nuscenes-semantic": {
+      "description": "NuScenes outdoor semantic segmentation (16 road-scene classes).",
+      "task": "semantic_segmentation",
+      "entrypoint": "tools/infer_nuscenes_semantic.py",
+      "config": "configs/nuscenes/semseg-litept-small-v1m1.py",
+      "weight": "weights/model_best.pth",
+      "class_count": 16,
+      "domain": "NuScenes-format outdoor LiDAR sweeps",
+      "input": {
+        "formats": ["bin"],
+        "required_fields": ["x", "y", "z", "strength", "ring_index"],
+        "optional_fields": [],
+        "default_unit": "m",
+        "model_up_axis": "z"
+      }
+    }
+  }
+}

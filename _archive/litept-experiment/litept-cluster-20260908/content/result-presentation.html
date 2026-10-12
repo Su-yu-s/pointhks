@@ -1,0 +1,66 @@
+<style>
+  .preview { position: relative; height: 220px; overflow: hidden; background: #1d232e; }
+  .preview img { width: 100%; height: 100%; object-fit: cover; object-position: left center; }
+  .tag { position: absolute; left: 12px; top: 12px; padding: 5px 9px; border-radius: 999px;
+         background: rgba(10,15,24,.86); color: #fff; font-size: 12px; }
+  .box { position: absolute; border: 3px solid #ffd54a; border-radius: 4px;
+         box-shadow: 0 0 0 1px rgba(0,0,0,.65); }
+  .box span { position:absolute; left:-3px; top:-24px; padding:2px 6px;
+              background:#ffd54a; color:#111; font-size:11px; white-space:nowrap; }
+  .muted img { opacity: .28; filter: grayscale(.5); }
+  .focus { position:absolute; inset:28px 30px 24px 25px; border:2px solid #4fe3ff;
+           border-radius:6px; box-shadow:0 0 22px rgba(79,227,255,.35); }
+  .instance { position:absolute; border:2px solid #62f5a7; border-radius:6px; }
+  .instance::after { content:attr(data-id); position:absolute; left:0; top:-20px;
+                     color:#07150e; background:#62f5a7; padding:2px 5px; font-size:10px; }
+</style>
+
+<h2>第一版结果应该先清楚到哪一步？</h2>
+<p class="subtitle">三种方案都保留 LitePT 的真实逐点标签；区别在于是否进一步把点组织成可点击对象。</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image preview muted">
+      <img src="/files/preview_topdown.png" alt="类别筛选预览">
+      <div class="focus"></div>
+      <div class="tag">仅显示所选类别：car</div>
+    </div>
+    <div class="card-body">
+      <h3>A · 类别筛选</h3>
+      <p>选择“车/道路/植被”后只显示该类。最快、最简单，但同类对象仍粘在一起，不能逐个点击。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image preview">
+      <img src="/files/preview_topdown.png" alt="聚类包围框预览">
+      <div class="tag">类别 + 空间聚类 + 包围框</div>
+      <div class="box" style="left:33%;top:43%;width:10%;height:13%"><span>car #1</span></div>
+      <div class="box" style="left:46%;top:50%;width:8%;height:11%"><span>car #2</span></div>
+      <div class="box" style="left:57%;top:39%;width:9%;height:12%"><span>car #3</span></div>
+    </div>
+    <div class="card-body">
+      <h3>B · 对象聚类（推荐）</h3>
+      <p>先按类别筛选，再按空间距离拆成对象，显示对象编号、点数、包围框；可直接把单个对象交给 RANSAC。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image preview">
+      <img src="/files/preview_topdown.png" alt="深度实例分割预览">
+      <div class="tag">LitePT 实例模型</div>
+      <div class="instance" data-id="ID 01" style="left:31%;top:38%;width:12%;height:17%"></div>
+      <div class="instance" data-id="ID 02" style="left:45%;top:48%;width:10%;height:14%"></div>
+      <div class="instance" data-id="ID 03" style="left:58%;top:35%;width:11%;height:15%"></div>
+    </div>
+    <div class="card-body">
+      <h3>C · 深度实例分割</h3>
+      <p>直接由实例模型区分对象，潜力最高；但当前 ScanNet200 模型要求 RGB+法线，并需补齐 PointGroup 依赖和适配数据。</p>
+    </div>
+  </div>
+</div>
+
+<div class="pros-cons">
+  <div class="pros"><h4>建议</h4><ul><li>先做 B，能立即改善展示，也建立“点击对象 → 局部 RANSAC”的接口。</li></ul></div>
+  <div class="cons"><h4>边界</h4><ul><li>B 是几何聚类，不会修复 LitePT 本身的错分类；C 留到有合适 RGB+法线数据后验证。</li></ul></div>
+</div>

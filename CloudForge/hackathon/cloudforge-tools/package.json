@@ -1,0 +1,17 @@
+{
+  "name": "cloudforge-tools",
+  "version": "0.2.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "云铸（CloudForge）点云几何检测工具集：info/detect/refine/synth/verify，经 cloudforge-cli 子进程调用 C++ 核心",
+  "exports": "./index.mjs",
+  "agnes": {
+    "plugins": [
+      {
+        "export": "cloudforgeTools",
+        "id": "ext:cloudforge/cloudforge-tools",
+        "inject": ["extension"]
+      }
+    ]
+  }
+}

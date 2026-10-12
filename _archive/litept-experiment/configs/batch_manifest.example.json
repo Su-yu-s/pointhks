@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "jobs": [
+    {
+      "id": "nuscenes-sample",
+      "input": "../weights/outdoor_sample1.bin",
+      "profile": "nuscenes-semantic",
+      "output_dir": "../outputs/batch_nuscenes_sample",
+      "options": []
+    },
+    {
+      "id": "indoor-sample",
+      "input": "../../data/office1-fragments-ply/cloud_bin_0.ply",
+      "profile": "scannet200-instances",
+      "output_dir": "../outputs/batch_indoor_sample",
+      "options": ["--up-axis", "auto", "--tiling", "auto"]
+    }
+  ]
+}
